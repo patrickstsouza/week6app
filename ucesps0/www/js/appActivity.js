@@ -82,3 +82,30 @@ function processDivChange() {
             document.getElementById('ajaxtest').innerHTML = xhr.responseText;
     }
 }
+
+// convert the received data - which is text - to JSON format and add it to the map
+function loadLayer(data) {
+    // convert the text received from the server to JSON
+    var json = JSON.parse(data );
+    // load the geoJSON layer
+    var layer = L.geoJson(json).addTo(mymap);
+    bounds = layer.getBounds();
+    if (bounds.isValid()) {
+        mymap.fitBounds(layer.getBounds());
+    }
+}
+
+// create the code to get the Earthquakes data using an XMLHttpRequest
+function getPOI() {
+    client = new XMLHttpRequest();
+    client.open('GET','http://developer.cege.ucl.ac.uk:30278/getPOI');
+    client.onreadystatechange = function() {
+        // this function listens out for the server to say that the data is ready - i.e. has state 4
+        if (client.readyState == 4) {
+            // once the data is ready, process the data
+            var data = client.responseText;
+            loadLayer(data);
+        }
+    }
+    client.send();
+}
